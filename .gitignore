@@ -1,0 +1,48 @@
+# --------------------
+# OSX Files
+# --------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# --------------------
+# Node Files
+# --------------------
+.nodemonignore
+npm-debug.log
+node_modules/
+
+# --------------------
+# App Files
+# --------------------
+build/
+build-server/
+
+# --------------------
+# IntelliJ Files
+# --------------------
+*.iml
+*.ipr
+*.iws
+/out/
+.idea/
+.idea_modules/
+
+# --------------------
+# Vim Files
+# --------------------
+*.swp
+*.vim
+
+# --------------------
+# MISC
+# --------------------
+.all-contributorsrc
+
+# SDE files
+utils/*.yaml
+utils/*.json

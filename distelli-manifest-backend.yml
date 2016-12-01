@@ -1,0 +1,12 @@
+champu/EVE-Exchange-Backend:
+
+  Build:
+    - echo "Bundling production release."
+  PkgInclude:
+    - 'build-server/**'
+    - package.json
+  PostInstall:
+    - npm install --production
+  Exec:
+    - echo "Starting server."
+    - exec node build-server/deepstream_router.js

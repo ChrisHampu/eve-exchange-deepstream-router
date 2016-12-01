@@ -1,0 +1,23 @@
+{
+  "name": "eve-exchange-deepstream-router",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "babel -d build-server server && node build-server/router.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.16.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-stage-3": "^6.17.0",
+    "babel-plugin-transform-runtime": "^6.15.0"
+  },
+  "dependencies": {
+    "deepstream.io-client-js": "^2.0.0",
+    "koa": "^2.0.0",
+    "koa-better-body": "^3.0.0",
+    "koa-router": "^7.0.1",
+    "mongodb": "^2.2.10"
+  }
+}

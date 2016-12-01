@@ -1,0 +1,42 @@
+variables:
+  GIT_STRATEGY: clone
+
+stages:
+- build
+- deploy
+
+build:
+  script:
+    # Base npm install + configure binaries
+    - npm install
+    - ln -s $(pwd)/node_modules/.bin/babel /usr/bin/babel
+    # Build server
+    - NODE_ENV=production babel server -d build-server
+  stage: build
+  tags:
+    - nodejs
+  artifacts:
+    paths:
+    - build-server/
+    - package.json
+    when: on_success
+    expire_in: 1 day
+  allow_failure: false
+
+deploy:
+  script:
+  - git checkout $CI_BUILD_REF_NAME
+  - 'which distelli || (wget -qO- https://www.distelli.com/download/client | sh)'
+  - "echo \"DistelliAccessToken: '$DISTELLI_ACCESS_TOKEN'\" > /etc/distelli.yml"
+  - "echo \"DistelliSecretKey: '$DISTELLI_SECRET_KEY'\" >> /etc/distelli.yml"
+  - echo "Environments:" >> /etc/distelli.yml
+  - echo "  - EVE-Exchange-Backend-Production" >> /etc/distelli.yml
+  - '"/usr/local/bin/distelli" login -conf /etc/distelli.yml'
+  - '"/usr/local/bin/distelli" deploy -q -y -m "Deployment from Gitlab" -f distelli-manifest-backend.yml --env EVE-Exchange-Backend-Production'
+  stage: deploy
+  environment: production
+  only:
+    - master
+  tags:
+    - nodejs
+  allow_failure: false
