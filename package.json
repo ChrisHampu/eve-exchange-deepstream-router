@@ -14,6 +14,7 @@
     "babel-plugin-transform-runtime": "^6.15.0"
   },
   "dependencies": {
+    "babel-runtime": "^6.18.0",
     "deepstream.io-client-js": "^2.0.0",
     "koa": "^2.0.0",
     "koa-better-body": "^3.0.0",
