@@ -9,4 +9,4 @@ champu/EVE-Exchange-Backend:
     - npm install --production
   Exec:
     - echo "Starting server."
-    - exec node build-server/deepstream_router.js
+    - exec node build-server/router.js
