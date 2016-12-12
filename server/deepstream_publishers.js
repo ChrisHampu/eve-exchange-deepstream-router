@@ -41,7 +41,7 @@ export async function publishLogin(user_id) {
       await recordReady(record);
     });
 
-    getCollection('profit_transactions').find({user_id}).toArray(async (err, docs) => {
+    getCollection('profit_transactions').find({user_id}).limit(1000).toArray(async (err, docs) => {
 
       if (!docs) {
         return;
