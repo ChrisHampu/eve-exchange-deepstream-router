@@ -32,6 +32,7 @@ export async function connectMongoDB() {
       collections['notifications'] = mongodb.collection("notifications");
       collections['login_log'] = mongodb.collection("login_log");
       collections['audit_log'] = mongodb.collection("audit_log");
+      collections['changelog'] = mongodb.collection("changelog");
 
       resolve();
     });

@@ -1,4 +1,4 @@
-import { publishOrders, publishMinutes, publishHourly, publishDaily, publishPortfolios, publishProfit } from './deepstream_publishers';
+import { publishOrders, publishMinutes, publishHourly, publishDaily, publishPortfolios, publishProfit, publishFeeds } from './deepstream_publishers';
 import { getCollection } from './mongo_interface';
 
 const subscribed_orders = [];
@@ -7,6 +7,7 @@ const subscribed_hourly = [];
 const subscribed_daily = [];
 const subscribed_portfolios = [];
 const subscribed_profit = [];
+const subscribed_feeds = [];
 
 export async function triggerOrderListeners() {
 
@@ -53,6 +54,14 @@ export async function triggerProfitListeners() {
   for (var user_id of subscribed_profit) {
 
     await publishProfit(user_id);
+  }
+}
+
+export async function triggerFeedsListeners() {
+
+  for (var user_id of subscribed_feeds) {
+
+    await publishFeeds(user_id);
   }
 }
 
@@ -202,6 +211,23 @@ export function configureListeners(deepstream) {
       
       // Publish a record for this item
       publishProfit(user_id);
+    } else {
+    }
+  });
+
+  deepstream.record.listen('feeds/\\d*', (eventName, isSubscribed, response) => {
+
+    const user_id = parseInt(/feeds\/(\d*)/.exec(eventName)[1]);
+
+    if (isSubscribed) {
+
+      // Become provider for this record
+      response.accept();
+
+      subscribed_feeds.push(user_id);
+      
+      // Publish a record for this item
+      publishFeeds(user_id);
     } else {
     }
   });
