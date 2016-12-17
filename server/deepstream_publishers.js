@@ -36,6 +36,74 @@ export async function publishLogin(user_id) {
       });
     });
 
+    getCollection('profit_alltime').findOne({user_id}, async (err, result) => { 
+ 
+      if (!result) { 
+        return; 
+      } 
+ 
+      var record = deepstream.record.getRecord(`profit_alltime/${user_id}`).set(result); 
+ 
+      await recordReady(record); 
+    }); 
+
+    getCollection('profit_top_items').findOne({user_id}, async (err, result) => { 
+ 
+      if (!result) { 
+        return; 
+      } 
+ 
+      var record = deepstream.record.getRecord(`profit_top_items/${user_id}`).set(result); 
+ 
+      await recordReady(record); 
+    }); 
+ 
+    getCollection('profit_transactions').find({user_id}).limit(1000).toArray(async (err, docs) => { 
+ 
+      if (!docs) { 
+        return; 
+      } 
+ 
+      var record = deepstream.record.getRecord(`profit_transactions/${user_id}`).set(docs); 
+ 
+      await recordReady(record); 
+    }); 
+ 
+    getCollection('portfolios').find({user_id}).toArray(async (err, docs) => { 
+ 
+      if (!docs) { 
+        return; 
+      } 
+ 
+      var record = deepstream.record.getRecord(`portfolios/${user_id}`).set(docs); 
+ 
+      await recordReady(record); 
+    }); 
+ 
+    getCollection('user_orders').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => { 
+ 
+      try { 
+        var record = deepstream.record.getRecord(`user_orders/${parseInt(user_id)}`).set(docs); 
+        await recordReady(record); 
+ 
+      } catch (err) { 
+        console.log("Error setting user_orders record for user " + user_id); 
+        console.log(err); 
+      } 
+    }); 
+ 
+    getCollection('profit_chart').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => { 
+ 
+      try { 
+        var record = deepstream.record.getRecord(`profit_chart/${parseInt(user_id)}`).set(docs); 
+        await recordReady(record); 
+ 
+      } catch (err) { 
+        console.log("Error setting profit_chart record for user " + user_id); 
+        console.log(err); 
+      } 
+    });     
+
     resolve();
   });
 }
