@@ -413,6 +413,18 @@ export async function publishProfit(user_id) {
       }
     });
 
+    getCollection('user_assets').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => {
+
+      try {
+        var record = deepstream.record.getRecord(`user_assets/${parseInt(user_id)}`).set(docs);
+        await recordReady(record);
+
+      } catch (err) {
+        console.log("Error setting user_assets record for user " + user_id);
+        console.log(err);
+      }
+    });
+
     resolve();
   });
 }

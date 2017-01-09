@@ -33,6 +33,7 @@ export async function connectMongoDB() {
       collections['login_log'] = mongodb.collection("login_log");
       collections['audit_log'] = mongodb.collection("audit_log");
       collections['changelog'] = mongodb.collection("changelog");
+      collections['user_assets'] = mongodb.collection("user_assets");
 
       resolve();
     });
