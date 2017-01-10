@@ -413,7 +413,7 @@ export async function publishProfit(user_id) {
       }
     });
 
-    getCollection('user_assets').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => {
+    getCollection('user_assets').findOne({user_id: parseInt(user_id)}, async (err, docs) => {
 
       try {
         var record = deepstream.record.getRecord(`user_assets/${parseInt(user_id)}`).set(docs);
