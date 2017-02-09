@@ -428,3 +428,22 @@ export async function publishProfit(user_id) {
     resolve();
   });
 }
+
+export async function publishTickers() {
+
+  return new Promise((resolve, reject) => {
+
+    getCollection('tickers').find().toArray(async (err, docs) => {
+
+      if (!docs) {
+        return;
+      }
+
+      var record = deepstream.record.getRecord('tickers').set(docs);
+
+      await recordReady(record);
+
+      resolve();
+    });
+  }) 
+}
