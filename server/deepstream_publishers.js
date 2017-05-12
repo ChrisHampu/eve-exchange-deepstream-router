@@ -58,7 +58,7 @@ export async function publishLogin(user_id) {
       await recordReady(record); 
     }); 
  
-    getCollection('profit_transactions').find({user_id}).limit(1000).toArray(async (err, docs) => { 
+    getCollection('profit_transactions').find({user_id}).sort({time: -1}).limit(1000).toArray(async (err, docs) => { 
  
       if (!docs) { 
         return; 
@@ -368,7 +368,7 @@ export async function publishProfit(user_id) {
       }
     });
 
-    getCollection('profit_transactions').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => {
+    getCollection('profit_transactions').find({user_id: parseInt(user_id)}).sort({time: -1}).limit(1000).toArray(async (err, docs) => {
 
       try {
         var record = deepstream.record.getRecord(`profit_transactions/${user_id}`).set(docs);
