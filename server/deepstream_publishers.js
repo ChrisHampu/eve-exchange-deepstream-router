@@ -211,11 +211,13 @@ export async function publishSubscription(user_id) {
   return new Promise((resolve, reject) => {
     getCollection('subscription').findOne({user_id: parseInt(user_id)}, async (err, doc) => {
 
+      if (!doc) {
+        resolve();
+        return;
+      }
+
       try {
         // Remove null values
-        if (doc.subscription_date) {
-          delete doc.subscription_date;
-        }
         if (doc.subscription_data) {
           delete doc.subscription_data;
         }
@@ -244,8 +246,9 @@ export async function publishAdminSubscriptions() {
 
         // Remove null values
         for (var i = 0; i < docs.length; i++) {
-          if (docs[i].subscription_date) {
-            delete docs[i].subscription_date;
+
+          if (!docs[i]) {
+            continue;
           }
 
           if (docs[i].subscription_data) {
