@@ -213,7 +213,7 @@ export async function publishSubscription(user_id) {
 
       try {
         // Remove null values
-        if (doc.subscription_date === null) {
+        if (doc.subscription_date) {
           delete doc.subscription_date;
         }
         if (doc.subscription_data) {
@@ -244,7 +244,7 @@ export async function publishAdminSubscriptions() {
 
         // Remove null values
         for (var i = 0; i < docs.length; i++) {
-          if (docs[i].subscription_date === null) {
+          if (docs[i].subscription_date) {
             delete docs[i].subscription_date;
           }
 
