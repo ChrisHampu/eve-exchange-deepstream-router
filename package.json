@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.18.0",
-    "deepstream.io-client-js": "^2.0.0",
+    "deepstream.io-client-js": "^2.1.5",
     "koa": "^2.0.0",
     "koa-better-body": "^3.0.0",
     "koa-router": "^7.0.1",
