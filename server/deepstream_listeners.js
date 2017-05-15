@@ -68,7 +68,7 @@ export async function configureListeners(deepstream) {
 
   deepstream.presence.subscribe((name, isLoggedIn) => {
 
-    getCollection('users').findOne({user_name: name}, (err, result) => { 
+    getCollection('users').findOne({user_name: name}, (err, result) => {
 
       if (err || !result ) {
         console.log(`Failed to handle login for user ${name}`);
@@ -178,20 +178,6 @@ export async function configureListeners(deepstream) {
 
       // Remove record so its not in memory
       deepstream.record.getRecord(eventName).delete();
-    }
-  });
-  
-  deepstream.record.listen('settings/.*', (eventName, isSubscribed, response) => {
-
-    const id = parseInt(/settings\/(\d*)/.exec(eventName)[1]);
-
-    if (isSubscribed) {
-      deepstream.event.subscribe(eventName, data => {
-
-        delete data._id;
-        getCollection('settings').findOneAndReplace({user_id: data.user_id}, data);
-      });
-    } else {
     }
   });
 }
