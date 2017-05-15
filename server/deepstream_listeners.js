@@ -1,13 +1,12 @@
-import { publishOrders, publishMinutes, publishHourly, publishDaily, publishPortfolios, publishProfit, publishFeeds } from './deepstream_publishers';
+import { publishOrders, publishMinutes, publishHourly, publishDaily, publishPortfolios, publishProfit, publishFeeds, publishLogin } from './deepstream_publishers';
 import { getCollection } from './mongo_interface';
+
+const subscribed_users = [];
 
 const subscribed_orders = [];
 const subscribed_minutes = [];
 const subscribed_hourly = [];
 const subscribed_daily = [];
-const subscribed_portfolios = [];
-const subscribed_profit = [];
-const subscribed_feeds = [];
 
 export async function triggerOrderListeners() {
 
@@ -43,7 +42,7 @@ export async function triggerDailyListeners() {
 
 export async function triggerPortfolioListeners() {
 
-  for (var user_id of subscribed_portfolios) {
+  for (var user_id of subscribed_users) {
 
     await publishPortfolios(user_id);
   }
@@ -51,7 +50,7 @@ export async function triggerPortfolioListeners() {
 
 export async function triggerProfitListeners() {
 
-  for (var user_id of subscribed_profit) {
+  for (var user_id of subscribed_users) {
 
     await publishProfit(user_id);
   }
@@ -59,13 +58,32 @@ export async function triggerProfitListeners() {
 
 export async function triggerFeedsListeners() {
 
-  for (var user_id of subscribed_feeds) {
+  for (var user_id of subscribed_users) {
 
     await publishFeeds(user_id);
   }
 }
 
-export function configureListeners(deepstream) {
+export async function configureListeners(deepstream) {
+
+  deepstream.presence.subscribe((name, isLoggedIn) => {
+
+    getCollection('users').findOne({user_name: name}, (err, result) => { 
+
+      if (err || !result ) {
+        console.log(`Failed to handle login for user ${name}`);
+        return;
+      }
+
+      const user_id = result.user_id;
+
+      if (isLoggedIn) {
+        subscribed_users.push(user_id);
+      } else {
+        subscribed_users.splice(subscribed_users.indexOf(user_id), 1);
+      }
+    });
+  });
 
   deepstream.record.listen('market_orders/\\d*', (eventName, isSubscribed, response) => {
 
@@ -84,10 +102,10 @@ export function configureListeners(deepstream) {
     } else {
 
       // Remove from update list
-      //subscribed_orders.splice(subscribed_orders.indexOf(type), 1);
+      subscribed_orders.splice(subscribed_orders.indexOf(type), 1);
 
       // Remove record so its not in memory
-      //deepstream.record.getRecord(eventName).discard();
+      deepstream.record.getRecord(eventName).delete();
     }
   });
 
@@ -108,10 +126,10 @@ export function configureListeners(deepstream) {
     } else { 
 
       // Remove from update list
-      //subscribed_minutes.splice(subscribed_minutes.indexOf(type), 1);
+      subscribed_minutes.splice(subscribed_minutes.indexOf(type), 1);
 
       // Remove record so its not in memory
-      //deepstream.record.getRecord(eventName).discard();
+      deepstream.record.getRecord(eventName).delete();
     }
   });
 
@@ -132,10 +150,10 @@ export function configureListeners(deepstream) {
     } else {
 
       // Remove from update list
-      //subscribed_hourly.splice(subscribed_hourly.indexOf(type), 1);
+      subscribed_hourly.splice(subscribed_hourly.indexOf(type), 1);
 
       // Remove record so its not in memory
-      //deepstream.record.getRecord(eventName).discard();
+      deepstream.record.getRecord(eventName).delete();
     }
   })
 
@@ -156,10 +174,10 @@ export function configureListeners(deepstream) {
     } else {
 
       // Remove from update list
-      //subscribed_daily.splice(subscribed_daily.indexOf(type), 1);
+      subscribed_daily.splice(subscribed_daily.indexOf(type), 1);
 
       // Remove record so its not in memory
-      //deepstream.record.getRecord(eventName).discard();
+      deepstream.record.getRecord(eventName).delete();
     }
   });
   
@@ -168,66 +186,11 @@ export function configureListeners(deepstream) {
     const id = parseInt(/settings\/(\d*)/.exec(eventName)[1]);
 
     if (isSubscribed) {
-
-      // Become provider for this record
-      //response.reject();
-
       deepstream.event.subscribe(eventName, data => {
 
         delete data._id;
-        getCollection('settings').findOneAndReplace({user_id:data.user_id}, data);
+        getCollection('settings').findOneAndReplace({user_id: data.user_id}, data);
       });
-    } else {
-    }
-  });
-
-  deepstream.record.listen('portfolios/\\d*', (eventName, isSubscribed, response) => {
-
-    const user_id = parseInt(/portfolios\/(\d*)/.exec(eventName)[1]);
-
-    if (isSubscribed) {
-
-      // Become provider for this record
-      response.accept();
-
-      subscribed_portfolios.push(user_id);
-      
-      // Publish a record for this item
-      publishPortfolios(user_id);
-    } else {
-    }
-  });
-  
-  deepstream.record.listen('profit_chart/\\d*', (eventName, isSubscribed, response) => {
-
-    const user_id = parseInt(/profit_chart\/(\d*)/.exec(eventName)[1]);
-
-    if (isSubscribed) {
-
-      // Become provider for this record
-      response.accept();
-
-      subscribed_profit.push(user_id);
-      
-      // Publish a record for this item
-      publishProfit(user_id);
-    } else {
-    }
-  });
-
-  deepstream.record.listen('feeds/\\d*', (eventName, isSubscribed, response) => {
-
-    const user_id = parseInt(/feeds\/(\d*)/.exec(eventName)[1]);
-
-    if (isSubscribed) {
-
-      // Become provider for this record
-      response.accept();
-
-      subscribed_feeds.push(user_id);
-      
-      // Publish a record for this item
-      publishFeeds(user_id);
     } else {
     }
   });
