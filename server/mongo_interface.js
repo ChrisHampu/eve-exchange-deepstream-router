@@ -36,6 +36,7 @@ export async function connectMongoDB() {
       collections['user_assets'] = mongodb.collection("user_assets");
       collections['tickers'] = mongodb.collection("tickers");
       collections['users'] = mongodb.collection("users");
+      collections['alerts'] = mongodb.collection("alerts");
 
       resolve();
     });

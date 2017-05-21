@@ -2,7 +2,7 @@ import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import body from 'koa-better-body';
 import { connectDeepstream } from './deepstream_interface';
-import { publishLogin, publishPortfolios, publishSubscription, publishNotifications, publishSettings, publishAuditLog, publishFeeds, publishTickers } from './deepstream_publishers';
+import { publishLogin, publishPortfolios, publishSubscription, publishNotifications, publishSettings, publishAuditLog, publishFeeds, publishTickers, publishAlerts } from './deepstream_publishers';
 import { configureListeners, triggerOrderListeners, triggerMinutesListeners, triggerHourlyListeners, triggerDailyListeners, triggerPortfolioListeners, triggerProfitListeners } from './deepstream_listeners';
 import { configureAdminListeners } from './deepstream_admin';
 
@@ -144,6 +144,20 @@ router.post('/publish/market/daily', async (ctx) => {
 router.post('/publish/audit', async (ctx) => {
 
   publishAuditLog();
+
+  ctx.body = "Success";
+});
+
+router.post('/publish/alert', async (ctx) => {
+  
+  deepstream.event.emit(`show_alert/${ctx.request.fields.user_id}`, ctx.request.fields.message);
+
+  ctx.body = "Success";
+});
+
+router.post('/publish/alerts/:id', async (ctx) => {
+
+  await publishAlerts(ctx.params.id);
 
   ctx.body = "Success";
 });

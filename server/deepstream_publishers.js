@@ -104,6 +104,18 @@ export async function publishLogin(user_id) {
       } 
     });     
 
+    getCollection('alerts').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => { 
+ 
+      try { 
+        var record = deepstream.record.getRecord(`alerts/${parseInt(user_id)}`).set(docs); 
+        await recordReady(record); 
+ 
+      } catch (err) { 
+        console.log("Error setting alerts record for user " + user_id); 
+        console.log(err); 
+      } 
+    });     
+
     resolve();
   });
 }
@@ -449,4 +461,29 @@ export async function publishTickers() {
       resolve();
     });
   }) 
+}
+
+export async function publishAlerts(user_id) {
+
+  return new Promise((resolve, reject) => {
+    getCollection('alerts').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => {
+
+      if (!docs) {
+        resolve();
+        return;
+      }
+
+      try {
+        var record = deepstream.record.getRecord(`alerts/${parseInt(user_id)}`).set(docs);
+
+        await recordReady(record);
+
+      } catch (err) {
+        console.log("Error publishing alerts record for user " + user_id);
+        console.log(err);
+      }
+
+      resolve();
+    });
+  });
 }
