@@ -6,6 +6,17 @@ export async function publishLogin(user_id) {
 
   return new Promise((resolve, reject) => {
 
+    getCollection('users').findOne({user_id}, async (err, result) => {
+
+      if (!result) {
+        return;
+      }
+
+      if (result.admin === true) {
+        publishAdminLogin();
+      }
+    });
+
     getCollection('settings').findOne({user_id}, async (err, result) => {
 
       if (!result) {
@@ -104,17 +115,23 @@ export async function publishLogin(user_id) {
       } 
     });     
 
-    getCollection('alerts').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => { 
- 
-      try { 
-        var record = deepstream.record.getRecord(`alerts/${parseInt(user_id)}`).set(docs); 
-        await recordReady(record); 
- 
-      } catch (err) { 
-        console.log("Error setting alerts record for user " + user_id); 
-        console.log(err); 
-      } 
-    });     
+    publishAlerts(user_id);
+
+    resolve();
+  });
+}
+
+export async function publishAdminLogin() {
+
+  getCollection('alerts_log').find().sort({time: -1}).limit(100).toArray(async (err, docs) => {
+
+    if (!docs) {
+      return;
+    }
+
+    var record = deepstream.record.getRecord('admin/alerts_log').set(docs);
+
+    await recordReady(record);
 
     resolve();
   });
@@ -465,25 +482,44 @@ export async function publishTickers() {
 
 export async function publishAlerts(user_id) {
 
-  return new Promise((resolve, reject) => {
-    getCollection('alerts').find({user_id: parseInt(user_id)}).toArray(async (err, docs) => {
+  return new Promise(async (resolve, reject) => {
 
-      if (!docs) {
-        resolve();
-        return;
-      }
+    try {
+      const list = await new Promise((res, rej) => {
+          getCollection('alerts').find({user_id: parseInt(user_id)}).toArray((err, docs) => {
+          
+          if (!docs) {
+            res([]);
+            return;
+          }
 
-      try {
-        var record = deepstream.record.getRecord(`alerts/${parseInt(user_id)}`).set(docs);
+          res(docs);
+        });
+      });
 
-        await recordReady(record);
+      const log = await new Promise((res, rej) => {
+          getCollection('alerts_log').find({user_id: parseInt(user_id)}).toArray((err, docs) => {
+          
+          if (!docs) {
+            res([]);
+            return;
+          }
 
-      } catch (err) {
-        console.log("Error publishing alerts record for user " + user_id);
-        console.log(err);
-      }
+          res(docs);
+        });
+      });
+
+      var record = deepstream.record.getRecord(`alerts/${parseInt(user_id)}`).set({list, log});
+
+      await recordReady(record);
 
       resolve();
-    });
+
+    } catch (err) {
+      console.log("Error publishing alerts record for user " + user_id);
+      console.log(err);
+
+      reject();
+    }
   });
 }

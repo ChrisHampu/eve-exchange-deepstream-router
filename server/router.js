@@ -157,8 +157,11 @@ router.post('/publish/alert', async (ctx) => {
 
 router.post('/publish/alerts/:id', async (ctx) => {
 
-  await publishAlerts(ctx.params.id);
-
+  try {
+    await publishAlerts(ctx.params.id);
+  } catch (e) {
+    console.log(e);
+  }
   ctx.body = "Success";
 });
 
