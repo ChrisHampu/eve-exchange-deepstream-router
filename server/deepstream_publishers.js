@@ -127,13 +127,11 @@ export async function publishAdminLogin() {
 
     if (!docs) {
       return;
-    }
+    } 
 
     var record = deepstream.record.getRecord('admin/alerts_log').set(docs);
 
     await recordReady(record);
-
-    resolve();
   });
 }
 
