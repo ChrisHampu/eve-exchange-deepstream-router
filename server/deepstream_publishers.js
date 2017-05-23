@@ -496,7 +496,7 @@ export async function publishAlerts(user_id) {
       });
 
       const log = await new Promise((res, rej) => {
-          getCollection('alerts_log').find({user_id: parseInt(user_id)}).toArray((err, docs) => {
+          getCollection('alerts_log').find({user_id: parseInt(user_id)}).sort({time: -1}).limit(100).toArray((err, docs) => {
           
           if (!docs) {
             res([]);
